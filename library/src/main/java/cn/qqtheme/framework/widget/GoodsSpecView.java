@@ -22,56 +22,15 @@ import cn.qqtheme.framework.GoodsSpec.R;
  * Created by liyujiang on 2017/5/24 11:23.
  *
  * @see TagViewGroup
+ * @see Config
+ * @see ISpecName
+ * @see ISpecValue
  */
 public class GoodsSpecView extends LinearLayout {
-    private List<? extends SpecName> data;
+    private List<? extends ISpecName> data;
     private Context context;
-
-    /**
-     * 规格标题栏的文本间距
-     */
-    private int titleMargin = 8;
-    /**
-     * 文字与按钮的边距
-     */
-    private int textPadding = 10;
-    /**
-     * 整个商品属性的左右间距
-     */
-    private int containerPadding = 16;
-    /**
-     * 属性按钮的高度
-     */
-    private int buttonHeight = 25;
-    /**
-     * 属性按钮之间的左边距
-     */
-    private int buttonLeftMargin = 10;
-    /**
-     * 属性按钮之间的上边距
-     */
-    private int buttonTopMargin = 5;
-    /**
-     * 属性按钮背景
-     */
-    private int buttonBackgroundResource = R.drawable.goods_spec_selector;
-    /**
-     * 属性按钮文字颜色
-     */
-    private int buttonTextColor = 0xFF111111;
-    /**
-     * 选择的属性按钮文字颜色
-     */
-    private int buttonSelectedTextColor = 0xFFFF5555;
-    /**
-     * 属性按钮文字大小
-     */
-    private int buttonTextSize = 12;
-    /**
-     * 选择后的回调监听
-     */
+    private Config config = new Config();
     private OnSelectedListener onSelectedListener;
-
 
     public GoodsSpecView(Context context) {
         super(context);
@@ -92,29 +51,30 @@ public class GoodsSpecView extends LinearLayout {
         if (data == null || data.size() == 0) {
             return;
         }
-        for (final SpecName specName : data) {
+        removeAllViews();
+        for (final ISpecName specName : data) {
             //设置规格分类的标题
             TextView textView = new TextView(context);
             LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            int margin = dip2px(context, titleMargin);
+            int margin = dip2px(context, config.titleMargin);
             textView.setText(specName.getName());
             params.setMargins(margin, margin, margin, margin);
             textView.setLayoutParams(params);
             addView(textView);
             //设置一个规格分类下的所有小规格
             final TagViewGroup layout = new TagViewGroup(context);
-            layout.setPadding(dip2px(context, containerPadding), 0, dip2px(context, containerPadding), 0);
-            final List<? extends SpecValue> values = specName.getValues();
+            layout.setPadding(dip2px(context, config.containerPadding), 0, dip2px(context, config.containerPadding), 0);
+            final List<? extends ISpecValue> values = specName.getValues();
             if (onSelectedListener != null) {
                 layout.setOnSelectedListener(new TagViewGroup.OnSelectedListener() {
                     @Override
                     public void onSelected(String name) {
                         for (int i = 0; i < layout.getChildCount(); i++) {
                             CompoundButton view = (CompoundButton) layout.getChildAt(i);
-                            view.setTextColor(view.isChecked() ? buttonSelectedTextColor : buttonTextColor);
+                            view.setTextColor(view.isChecked() ? config.buttonSelectedTextColor : config.buttonTextColor);
                         }
-                        for (SpecValue specValue : values) {
+                        for (ISpecValue specValue : values) {
                             if (specValue.getName().equals(name)) {
                                 onSelectedListener.onSelected(specName, specValue);
                                 break;
@@ -124,21 +84,21 @@ public class GoodsSpecView extends LinearLayout {
                 });
             }
             for (int i = 0; i < values.size(); i++) {
-                SpecValue specValue = values.get(i);
+                ISpecValue specValue = values.get(i);
                 RadioButton button = new RadioButton(context);
                 //设置按钮的参数
-                LayoutParams buttonParams = new LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                        dip2px(context, buttonHeight));
+                LayoutParams buttonParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
+                        dip2px(context, config.buttonHeight));
                 //设置文字的边距
-                int padding = dip2px(context, textPadding);
+                int padding = dip2px(context, config.textPadding);
                 button.setPadding(padding, 0, padding, 0);
                 //设置margin属性，需传入LayoutParams否则会丢失原有的布局参数
                 MarginLayoutParams marginParams = new MarginLayoutParams(buttonParams);
-                marginParams.leftMargin = dip2px(context, buttonLeftMargin);
-                marginParams.topMargin = dip2px(context, buttonTopMargin);
+                marginParams.leftMargin = dip2px(context, config.buttonLeftMargin);
+                marginParams.topMargin = dip2px(context, config.buttonTopMargin);
                 button.setLayoutParams(marginParams);
                 button.setGravity(Gravity.CENTER);
-                button.setBackgroundResource(buttonBackgroundResource);
+                button.setBackgroundResource(config.buttonBackgroundResource);
                 button.setButtonDrawable(android.R.color.transparent);
                 button.setText(specValue.getName());
 //                if (i == 0) {
@@ -148,8 +108,8 @@ public class GoodsSpecView extends LinearLayout {
 //                } else {
 //                    button.setTextColor(buttonTextColor);
 //                }
-                button.setTextColor(buttonTextColor);
-                button.setTextSize(buttonTextSize);
+                button.setTextColor(config.buttonTextColor);
+                button.setTextSize(config.buttonTextSize);
                 layout.addView(button);
             }
             addView(layout);
@@ -164,53 +124,93 @@ public class GoodsSpecView extends LinearLayout {
         return (int) (dpValue * scale + 0.5f);
     }
 
-    public void setContainerPadding(int containerPadding) {
-        this.containerPadding = containerPadding;
-    }
-
-    public void setTitleMargin(int titleMargin) {
-        this.titleMargin = titleMargin;
-    }
-
-    public void setTextPadding(int textPadding) {
-        this.textPadding = textPadding;
-    }
-
-    public void setButtonHeight(int buttonHeight) {
-        this.buttonHeight = buttonHeight;
-    }
-
-    public void setButtonLeftMargin(int buttonLeftMargin) {
-        this.buttonLeftMargin = buttonLeftMargin;
-    }
-
-    public void setButtonTopMargin(int buttonTopMargin) {
-        this.buttonTopMargin = buttonTopMargin;
-    }
-
-    public void setButtonBackgroundResource(@DrawableRes int resid) {
-        this.buttonBackgroundResource = resid;
-    }
-
-    public void setButtonTextColor(@ColorInt int buttonTextColor) {
-        this.buttonTextColor = buttonTextColor;
-    }
-
-    public void setButtonSelectedTextColor(int buttonSelectedTextColor) {
-        this.buttonSelectedTextColor = buttonSelectedTextColor;
-    }
-
-    public void setButtonTextSize(int buttonTextSize) {
-        this.buttonTextSize = buttonTextSize;
-    }
-
-    public void setData(List<? extends SpecName> data) {
-        this.data = data;
+    public void setConfig(Config config) {
+        this.config = config;
         refreshView();
     }
 
-    public void setOnSelectedListener(OnSelectedListener onSelectedListener) {
-        this.onSelectedListener = onSelectedListener;
+    public void setData(List<? extends ISpecName> data, OnSelectedListener listener) {
+        this.data = data;
+        this.onSelectedListener = listener;
+        refreshView();
+    }
+
+    public static class Config {
+        /**
+         * 规格标题栏的文本间距
+         */
+        private int titleMargin = 8;
+        /**
+         * 文字与按钮的边距
+         */
+        private int textPadding = 10;
+        /**
+         * 整个商品属性的左右间距
+         */
+        private int containerPadding = 16;
+        /**
+         * 属性按钮的高度
+         */
+        private int buttonHeight = 25;
+        /**
+         * 属性按钮之间的左边距
+         */
+        private int buttonLeftMargin = 10;
+        /**
+         * 属性按钮之间的上边距
+         */
+        private int buttonTopMargin = 5;
+        /**
+         * 属性按钮背景
+         */
+        private int buttonBackgroundResource = R.drawable.goods_spec_selector;
+        /**
+         * 属性按钮文字颜色
+         */
+        private int buttonTextColor = 0xFF111111;
+        /**
+         * 选择的属性按钮文字颜色
+         */
+        private int buttonSelectedTextColor = 0xFFFF5555;
+        /**
+         * 属性按钮文字大小
+         */
+        private int buttonTextSize = 12;
+
+        public void setContainerPadding(int containerPadding) {
+            this.containerPadding = containerPadding;
+        }
+
+        public void setTitleMargin(int titleMargin) {
+            this.titleMargin = titleMargin;
+        }
+
+        public void setTextPadding(int textPadding) {
+            this.textPadding = textPadding;
+        }
+
+        public void setButtonHeight(int buttonHeight) {
+            this.buttonHeight = buttonHeight;
+        }
+
+        public void setButtonLeftMargin(int buttonLeftMargin, int buttonTopMargin) {
+            this.buttonLeftMargin = buttonLeftMargin;
+            this.buttonTopMargin = buttonTopMargin;
+        }
+
+        public void setButtonBackgroundResource(@DrawableRes int res) {
+            this.buttonBackgroundResource = res;
+        }
+
+        public void setButtonTextColor(@ColorInt int normalColor, @ColorInt int selectedColor) {
+            this.buttonTextColor = normalColor;
+            this.buttonSelectedTextColor = selectedColor;
+        }
+
+        public void setButtonTextSize(int buttonTextSize) {
+            this.buttonTextSize = buttonTextSize;
+        }
+
     }
 
     /**

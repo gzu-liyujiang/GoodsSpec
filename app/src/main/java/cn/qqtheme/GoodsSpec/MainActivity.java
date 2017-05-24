@@ -19,7 +19,6 @@ public class MainActivity extends AppCompatActivity implements GoodsSpecView.OnS
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         GoodsSpecView goodsSpecView = (GoodsSpecView) findViewById(R.id.goods_spec);
-        goodsSpecView.setOnSelectedListener(this);
         List<GoodsSpecView.SpecName> specNames = new ArrayList<>();
         GoodsSpecView.SpecName specName1 = new GoodsSpecView.SpecName("尺码");
         for (String value1 : specValues1) {
@@ -31,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements GoodsSpecView.OnS
         }
         specNames.add(specName1);
         specNames.add(specName2);
-        goodsSpecView.setData(specNames);
+        goodsSpecView.setData(specNames, this);
     }
 
     @Override
