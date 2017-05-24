@@ -32,3 +32,127 @@
         });
 
 ```
+商品规格支持JavaBean，实现ISpecName和ISpecValue接口即可，如：
+```java
+     public class SpecsBean implements GoodsSpecView.ISpecName {
+            private String id;
+            private String storeid;
+            private String goodsid;
+            private String title;
+            private List<ItemsBean> items;
+
+            public String getId() {
+                return id;
+            }
+
+            public void setId(String id) {
+                this.id = id;
+            }
+
+            public String getStoreid() {
+                return storeid;
+            }
+
+            public void setStoreid(String storeid) {
+                this.storeid = storeid;
+            }
+
+            public String getGoodsid() {
+                return goodsid;
+            }
+
+            public void setGoodsid(String goodsid) {
+                this.goodsid = goodsid;
+            }
+
+            public String getTitle() {
+                return title;
+            }
+
+            public void setTitle(String title) {
+                this.title = title;
+            }
+
+            public List<ItemsBean> getItems() {
+                return items;
+            }
+
+            public void setItems(List<ItemsBean> items) {
+                this.items = items;
+            }
+
+            @Override
+            public String getName() {
+                return title;
+            }
+
+            @Override
+            public List<ItemsBean> getValues() {
+                return items;
+            }
+
+            @Override
+            public String toString() {
+                return title;
+            }
+
+        }
+
+       public class ItemsBean implements GoodsSpecView.ISpecValue {
+            private String id;
+            private String specid;
+            private String title;
+            private String thumb;
+
+            public String getId() {
+                return id;
+            }
+
+            public void setId(String id) {
+                this.id = id;
+            }
+
+            public String getSpecid() {
+                return specid;
+            }
+
+            public void setSpecid(String specid) {
+                this.specid = specid;
+            }
+
+            public String getTitle() {
+                return title;
+            }
+
+            public void setTitle(String title) {
+                this.title = title;
+            }
+
+            public String getThumb() {
+                return thumb;
+            }
+
+            public void setThumb(String thumb) {
+                this.thumb = thumb;
+            }
+
+            @Override
+            public String getName() {
+                return title;
+            }
+
+            @Override
+            public String toString() {
+                return title;
+            }
+
+        }
+
+        List<SpecsBean> specsBeanList = dataBean.getSpecs();
+        goodsSpecView.setData(specsBeanList, new GoodsSpecView.OnSelectedListener() {
+            @Override
+            public <N, V> void onSelected(N specName, V specValue) {
+                onSpecificationClicked(ItemsBean) specValue);
+            }
+        });
+```
