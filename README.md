@@ -1,8 +1,8 @@
 ### 标签组布局及商品规格选择视图
 标签组布局，可用来实现诸如热门搜索词、商品规格之类的。参阅：http://blog.csdn.net/lmj623565791/article/details/38352503
 
-### 效果图镇库
-
+### 效果图
+![图](Screenshot.png)
 ### 使用方法：
 下载library模块依赖：
 ```groovy
