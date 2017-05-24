@@ -8,6 +8,7 @@
 ```groovy
     compile project(':library')
 ```
+或者复制library模块下的三个文件到你项目里：TagViewGroup.java、GoodsSpecView.java、goods_spec_selector.xml<br />
 参考app模块，示例代码如下：
 ```java
        String specValues1[] = {"XS", "S", "M", "L", "XL", "XXL", "XXXL"};
@@ -25,6 +26,10 @@
         }
         specNames.add(specName1);
         specNames.add(specName2);
-        goodsSpecView.setData(specNames);
+        goodsSpecView.setData(specNames, new GoodsSpecView.OnSelectedListener() {
+            @Override
+            public <N, V> void onSelected(N specName, V specValue) {
+            }
+        });
 
 ```
