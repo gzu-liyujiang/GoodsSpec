@@ -11,10 +11,9 @@
 或者复制library模块下的三个文件到你项目里：TagViewGroup.java、GoodsSpecView.java、goods_spec_selector.xml<br />
 参考app模块，示例代码如下：
 ```java
-       String specValues1[] = {"XS", "S", "M", "L", "XL", "XXL", "XXXL"};
-       String specValues2[] = {"白色", "黑色", "黄绿色", "藏青", "蝴蝶蓝"};
-       GoodsSpecView goodsSpecView = (GoodsSpecView) findViewById(R.id.goods_spec);
-        goodsSpecView.setOnSelectedListener(this);
+        String specValues1[] = {"XS", "S", "M", "L", "XL", "XXL", "XXXL"};
+        String specValues2[] = {"白色", "黑色", "黄绿色", "藏青", "蝴蝶蓝"};
+        GoodsSpecView goodsSpecView = (GoodsSpecView) findViewById(R.id.goods_spec);
         List<GoodsSpecView.SpecName> specNames = new ArrayList<>();
         GoodsSpecView.SpecName specName1 = new GoodsSpecView.SpecName("尺码");
         for (String value1 : specValues1) {
