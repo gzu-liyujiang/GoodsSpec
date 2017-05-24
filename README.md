@@ -8,8 +8,19 @@
 ```groovy
     compile project(':library')
 ```
-或者复制library模块下的三个文件到你项目里：TagViewGroup.java、GoodsSpecView.java、goods_spec_selector.xml<br />
+或者复制library模块下的三个文件到你项目里：TagViewGroup.java、GoodsSpecView.java、tag_bg_selector.xml<br />
 参考app模块，示例代码如下：
+```java
+        TagViewGroup.UiConfig config = new TagViewGroup.UiConfig();
+        config.setButtonTextColor(0xFF111111, 0xFF111111);
+        config.setButtonBackgroundResource(R.drawable.hot_search_bg);
+        tagViewGroup.setData(config, keywords, new TagViewGroup.OnSelectedListener() {
+            @Override
+            public void onSelected(String name) {
+
+            }
+        });
+```
 ```java
         String specValues1[] = {"XS", "S", "M", "L", "XL", "XXL", "XXXL"};
         String specValues2[] = {"白色", "黑色", "黄绿色", "藏青", "蝴蝶蓝"};

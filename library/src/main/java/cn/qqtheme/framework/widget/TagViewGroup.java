@@ -1,23 +1,34 @@
 package cn.qqtheme.framework.widget;
 
 import android.content.Context;
+import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import cn.qqtheme.framework.GoodsSpec.R;
 
 /**
  * 标签组布局，如热门搜索词、商品规格。参阅：http://blog.csdn.net/lmj623565791/article/details/38352503
  * <p>
  * Created by liyujiang on 2017/5/24 10:20.
  *
+ * @see UiConfig
  * @see GoodsSpecView
  */
 public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedChangeListener {
+    //存储所有的标签
+    private List<String> data = new ArrayList<>();
+    //UI配置
+    private UiConfig config = new UiConfig();
     //存储所有的View
     private List<List<View>> allViews = new ArrayList<>();
     // 存放每一行的子view
@@ -180,24 +191,18 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
     }
 
     @Override
-    public void addView(View child) {
-        if (child instanceof RadioButton) {
-            ((RadioButton) child).setOnCheckedChangeListener(this);
-        }
-        super.addView(child);
-    }
-
-    @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
             if (child instanceof RadioButton) {
                 RadioButton button = (RadioButton) child;
                 button.setChecked(false);
+                button.setTextColor(config.buttonTextColor);
             }
         }
         if (isChecked) {
             buttonView.setChecked(true);
+            buttonView.setTextColor(config.buttonSelectedTextColor);
             if (onSelectedListener != null) {
                 onSelectedListener.onSelected(buttonView.getText().toString());
             }
@@ -205,13 +210,132 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
 
     }
 
-    public void setOnSelectedListener(OnSelectedListener onSelectedListener) {
-        this.onSelectedListener = onSelectedListener;
+    private int dip2px(Context context, float dpValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
+    }
+
+    private void refreshView() {
+        removeAllViews();
+        if (data == null || data.size() == 0) {
+            return;
+        }
+        Context context = getContext();
+        setPadding(dip2px(context, config.containerPadding), 0, dip2px(context, config.containerPadding), 0);
+        for (int i = 0; i < data.size(); i++) {
+            RadioButton button = new RadioButton(context);
+            button.setOnCheckedChangeListener(this);
+            //设置按钮的参数
+            LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                    dip2px(context, config.buttonHeight));
+            //设置文字的边距
+            int padding = dip2px(context, config.textPadding);
+            button.setPadding(padding, 0, padding, 0);
+            //设置margin属性，需传入LayoutParams否则会丢失原有的布局参数
+            MarginLayoutParams marginParams = new MarginLayoutParams(buttonParams);
+            marginParams.leftMargin = dip2px(context, config.buttonLeftMargin);
+            marginParams.topMargin = dip2px(context, config.buttonTopMargin);
+            button.setLayoutParams(marginParams);
+            button.setGravity(Gravity.CENTER);
+            button.setBackgroundResource(config.buttonBackgroundResource);
+            button.setButtonDrawable(android.R.color.transparent);
+            button.setText(data.get(i));
+//            if (i == 0) {
+//                //默认选中第一个
+//                button.setChecked(true);
+//            }
+            button.setTextColor(config.buttonTextColor);
+            button.setTextSize(config.buttonTextSize);
+            addView(button);
+        }
+    }
+
+    public void setData(List<String> data, OnSelectedListener listener) {
+        setData(null, data, listener);
+    }
+
+    public void setData(UiConfig config, List<String> data, OnSelectedListener listener) {
+        if (config != null) {
+            this.config = config;
+        }
+        this.data = data;
+        this.onSelectedListener = listener;
+        refreshView();
     }
 
     public interface OnSelectedListener {
 
         void onSelected(String name);
+
+    }
+
+    public static class UiConfig {
+        /**
+         * 文字与按钮的边距
+         */
+        private int textPadding = 10;
+        /**
+         * 整个商品属性的左右间距
+         */
+        private int containerPadding = 16;
+        /**
+         * 属性按钮的高度
+         */
+        private int buttonHeight = 25;
+        /**
+         * 属性按钮之间的左边距
+         */
+        private int buttonLeftMargin = 10;
+        /**
+         * 属性按钮之间的上边距
+         */
+        private int buttonTopMargin = 5;
+        /**
+         * 属性按钮背景
+         */
+        private int buttonBackgroundResource = R.drawable.tag_bg_selector;
+        /**
+         * 属性按钮文字颜色
+         */
+        private int buttonTextColor = 0xFF111111;
+        /**
+         * 选择的属性按钮文字颜色
+         */
+        private int buttonSelectedTextColor = 0xFFFF5555;
+        /**
+         * 属性按钮文字大小
+         */
+        private int buttonTextSize = 12;
+
+        public void setContainerPadding(int containerPadding) {
+            this.containerPadding = containerPadding;
+        }
+
+        public void setTextPadding(int textPadding) {
+            this.textPadding = textPadding;
+        }
+
+        public void setButtonHeight(int buttonHeight) {
+            this.buttonHeight = buttonHeight;
+        }
+
+        public void setButtonLeftMargin(int buttonLeftMargin, int buttonTopMargin) {
+            this.buttonLeftMargin = buttonLeftMargin;
+            this.buttonTopMargin = buttonTopMargin;
+        }
+
+        public void setButtonBackgroundResource(@DrawableRes int res) {
+            this.buttonBackgroundResource = res;
+        }
+
+        public void setButtonTextColor(@ColorInt int normalColor, @ColorInt int selectedColor) {
+            this.buttonTextColor = normalColor;
+            this.buttonSelectedTextColor = selectedColor;
+        }
+
+        public void setButtonTextSize(int buttonTextSize) {
+            this.buttonTextSize = buttonTextSize;
+        }
 
     }
 
