@@ -6,11 +6,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import cn.qqtheme.framework.widget.GoodsSpecView;
+import cn.qqtheme.framework.widget.TagViewGroup;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements GoodsSpecView.OnSelectedListener {
+public class MainActivity extends AppCompatActivity {
+    private String keywords[] = {"穿青人", "少数民族", "未定民族", "已识别民族"};
     private String specValues1[] = {"XS", "S", "M", "L", "XL", "XXL", "XXXL"};
     private String specValues2[] = {"白色", "黑色", "黄绿色", "藏青", "蝴蝶蓝"};
 
@@ -18,8 +21,18 @@ public class MainActivity extends AppCompatActivity implements GoodsSpecView.OnS
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        TagViewGroup tagViewGroup = (TagViewGroup) findViewById(R.id.hot_keyword);
+        TagViewGroup.UiConfig config = new TagViewGroup.UiConfig();
+        config.setContainerPadding(0);
+        config.setButtonTextColor(0xFF111111, 0xFF111111);
+        config.setButtonBackgroundResource(R.drawable.hot_keyword_bg_selector);
+        tagViewGroup.setData(config, Arrays.asList(keywords), new TagViewGroup.OnSelectedListener() {
+            @Override
+            public void onSelected(String name) {
+                Toast.makeText(getBaseContext(), name, Toast.LENGTH_SHORT).show();
+            }
+        });
         GoodsSpecView goodsSpecView = (GoodsSpecView) findViewById(R.id.goods_spec);
-        List<GoodsSpecView.SpecName> specNames = new ArrayList<>();
         GoodsSpecView.SpecName specName1 = new GoodsSpecView.SpecName("尺码");
         for (String value1 : specValues1) {
             specName1.addValue(new GoodsSpecView.SpecValue(value1));
@@ -28,9 +41,15 @@ public class MainActivity extends AppCompatActivity implements GoodsSpecView.OnS
         for (String value2 : specValues2) {
             specName2.addValue(new GoodsSpecView.SpecValue(value2));
         }
+        List<GoodsSpecView.SpecName> specNames = new ArrayList<>();
         specNames.add(specName1);
         specNames.add(specName2);
-        goodsSpecView.setData(specNames, this);
+        goodsSpecView.setData(specNames, new GoodsSpecView.OnSelectedListener() {
+            @Override
+            public <N, V> void onSelected(N specName, V specValue) {
+                Toast.makeText(getBaseContext(), specName + "--" + specValue, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -38,11 +57,6 @@ public class MainActivity extends AppCompatActivity implements GoodsSpecView.OnS
         finish();
         Process.killProcess(Process.myPid());
         System.exit(0);
-    }
-
-    @Override
-    public <N, V> void onSelected(N specName, V specValue) {
-        Toast.makeText(this, specName + "--" + specValue, Toast.LENGTH_SHORT).show();
     }
 
 }

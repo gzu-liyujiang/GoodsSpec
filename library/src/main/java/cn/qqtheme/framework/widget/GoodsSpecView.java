@@ -36,6 +36,28 @@ public class GoodsSpecView extends LinearLayout {
 
     private void init() {
         setOrientation(LinearLayout.VERTICAL);
+        if (isInEditMode()) {
+            String colors[] = {"白色", "黑色", "银色", "蓝色", "玫瑰金"};
+            String storages[] = {"16GB", "32GB", "128GB", "256GB"};
+            String suits[] = {"官方标配", "套餐一", "套餐二", "套餐三"};
+            SpecName colorName = new SpecName("颜色");
+            for (String color : colors) {
+                colorName.addValue(new GoodsSpecView.SpecValue(color));
+            }
+            SpecName storageName = new SpecName("容量");
+            for (String storage : storages) {
+                storageName.addValue(new GoodsSpecView.SpecValue(storage));
+            }
+            SpecName suitName = new SpecName("套餐");
+            for (String suit : suits) {
+                suitName.addValue(new GoodsSpecView.SpecValue(suit));
+            }
+            List<SpecName> specNames = new ArrayList<>();
+            specNames.add(colorName);
+            specNames.add(storageName);
+            specNames.add(suitName);
+            setData(specNames, null);
+        }
     }
 
     private int dip2px(Context context, float dpValue) {

@@ -11,13 +11,16 @@
 或者复制library模块下的三个文件到你项目里：TagViewGroup.java、GoodsSpecView.java、tag_bg_selector.xml<br />
 参考app模块，示例代码如下：
 ```java
+        String keywords[] = {"穿青人", "少数民族", "未定民族", "已识别民族"};
+        TagViewGroup tagViewGroup = (TagViewGroup) findViewById(R.id.hot_keyword);
         TagViewGroup.UiConfig config = new TagViewGroup.UiConfig();
+        config.setContainerPadding(0);
         config.setButtonTextColor(0xFF111111, 0xFF111111);
-        config.setButtonBackgroundResource(R.drawable.hot_search_bg);
-        tagViewGroup.setData(config, keywords, new TagViewGroup.OnSelectedListener() {
+        config.setButtonBackgroundResource(R.drawable.hot_keyword_bg_selector);
+        tagViewGroup.setData(config, Arrays.asList(keywords), new TagViewGroup.OnSelectedListener() {
             @Override
             public void onSelected(String name) {
-
+                Toast.makeText(getBaseContext(), name, Toast.LENGTH_SHORT).show();
             }
         });
 ```
@@ -39,9 +42,9 @@
         goodsSpecView.setData(specNames, new GoodsSpecView.OnSelectedListener() {
             @Override
             public <N, V> void onSelected(N specName, V specValue) {
+                Toast.makeText(getBaseContext(), specName + "--" + specValue, Toast.LENGTH_SHORT).show();
             }
         });
-
 ```
 商品规格支持JavaBean，实现ISpecName和ISpecValue接口即可，如：
 ```java

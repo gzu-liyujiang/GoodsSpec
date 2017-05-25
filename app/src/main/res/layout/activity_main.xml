@@ -4,6 +4,16 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <cn.qqtheme.framework.widget.TagViewGroup
+        android:id="@+id/hot_keyword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:background="@color/colorPrimary"/>
+
     <cn.qqtheme.framework.widget.GoodsSpecView
         android:id="@+id/goods_spec"
         android:layout_width="match_parent"
