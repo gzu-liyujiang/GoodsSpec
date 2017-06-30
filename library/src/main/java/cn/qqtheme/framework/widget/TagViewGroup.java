@@ -7,15 +7,17 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 
+import com.weiyin.mobile.weifan.R;
+import com.weiyin.mobile.weifan.utils.LogUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import cn.qqtheme.framework.GoodsSpec.R;
 
 /**
  * 标签组布局，如热门搜索词、商品规格。参阅：http://blog.csdn.net/lmj623565791/article/details/38352503
@@ -94,8 +96,8 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
         }
         width += getPaddingLeft() + getPaddingRight();
         height += getPaddingTop() + getPaddingBottom();
-        //LogUtils.d("onMeasure: sizeWidth=" + sizeWidth + ",width=" + width + ",height=" + height
-        //        + ",lineWidth=" + lineWidth + ",lineHeight=" + lineHeight);
+        LogUtils.d("onMeasure: sizeWidth=" + sizeWidth + ",width=" + width + ",height=" + height
+                + ",lineWidth=" + lineWidth + ",lineHeight=" + lineHeight);
         setMeasuredDimension(width, height);
     }
 
@@ -106,7 +108,7 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
         lineHeights.clear();
         //获取当前ViewGroup的宽度
         int width = getWidth();
-        //LogUtils.d("onLayout: width=" + width);
+        LogUtils.d("onLayout: width=" + width);
 
         int lineWidth = 0;
         int lineHeight = 0;
@@ -147,7 +149,7 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
             //当前行的views和高度
             lineViews = allChildViews.get(i);
             lineHeight = lineHeights.get(i);
-            //LogUtils.d("onLayout: 第" + i + "行: lineWidth=" + lineWidth + ",lineHeight=" + lineHeight);
+            LogUtils.d("onLayout: 第" + i + "行: lineWidth=" + lineWidth + ",lineHeight=" + lineHeight);
             for (int j = 0; j < lineViews.size(); j++) {
                 View child = lineViews.get(j);
                 //判断是否显示
@@ -175,10 +177,9 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        for (int i = 0; i < getChildCount(); i++) {
-            View child = getChildAt(i);
-            if (child instanceof RadioButton) {
-                RadioButton button = (RadioButton) child;
+        if (!config.isMultipleMode) {
+            for (int i = 0; i < getChildCount(); i++) {
+                RadioButton button = (RadioButton) getChildAt(i);
                 button.setChecked(false);
                 button.setTextColor(config.buttonTextColor);
             }
@@ -189,6 +190,9 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
             if (onSelectedListener != null) {
                 onSelectedListener.onSelected(buttonView.getText().toString());
             }
+        } else {
+            buttonView.setChecked(false);
+            buttonView.setTextColor(config.buttonTextColor);
         }
     }
 
@@ -202,11 +206,16 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
         if (data == null || data.size() == 0) {
             return;
         }
-        //LogUtils.d("tags=" + Arrays.deepToString(data.toArray()));
+        LogUtils.d("tags=" + Arrays.deepToString(data.toArray()));
         Context context = getContext();
         setPadding(dip2px(context, config.containerPadding), 0, dip2px(context, config.containerPadding), 0);
         for (int i = 0; i < data.size(); i++) {
-            RadioButton button = new RadioButton(context);
+            CompoundButton button;
+            if (config.isMultipleMode) {
+                button = new CheckBox(context);
+            } else {
+                button = new RadioButton(context);
+            }
             button.setOnCheckedChangeListener(this);
             //设置按钮的参数
             LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -229,8 +238,12 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
         }
     }
 
+    public void setData(UiConfig config, String[] data, OnSelectedListener listener) {
+        setData(config, Arrays.asList(data), listener);
+    }
+
     public void setData(String[] data, OnSelectedListener listener) {
-        setData(Arrays.asList(data), listener);
+        setData(null, data, listener);
     }
 
     public void setData(List<String> data, OnSelectedListener listener) {
@@ -253,6 +266,10 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
     }
 
     public static class UiConfig {
+        /**
+         * 是否多选
+         */
+        private boolean isMultipleMode = false;
         /**
          * 文字与按钮的边距
          */
@@ -289,6 +306,10 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
          * 属性按钮文字大小
          */
         private int buttonTextSize = 12;
+
+        public void setMultipleMode(boolean multipleMode) {
+            isMultipleMode = multipleMode;
+        }
 
         public void setTextPadding(int textPadding) {
             this.textPadding = textPadding;
