@@ -88,15 +88,15 @@ public class GoodsSpecView extends LinearLayout {
             for (ISpecValue value : values) {
                 valueStrs.add(value.getName());
             }
-            tagViewGroup.setData(config, valueStrs, new TagViewGroup.OnSelectedListener() {
+            tagViewGroup.setData(config, valueStrs.toArray(new String[valueStrs.size()]), new TagViewGroup.OnSelectedListener() {
                 @Override
-                public void onSelected(String name) {
+                public void onSelected(TagViewGroup.TagValue tagValue) {
                     if (onSelectedListener == null) {
                         return;
                     }
                     for (ISpecValue value : values) {
-                        if (value.getName().equals(name)) {
-                            onSelectedListener.onSelected(specName, value);
+                        if (value.getName().equals(tagValue.getName())) {
+                            onSelectedListener.onSelected(specName, tagValue.getName());
                             break;
                         }
                     }

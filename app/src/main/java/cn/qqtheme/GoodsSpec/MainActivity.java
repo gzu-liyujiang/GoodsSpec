@@ -9,7 +9,6 @@ import cn.qqtheme.framework.widget.GoodsSpecView;
 import cn.qqtheme.framework.widget.TagViewGroup;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,13 +22,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         TagViewGroup tagViewGroup = (TagViewGroup) findViewById(R.id.hot_keyword);
         TagViewGroup.UiConfig config = new TagViewGroup.UiConfig();
+        config.setMultipleMode(true);
         config.setContainerPadding(0);
         config.setButtonTextColor(0xFF111111, 0xFF111111);
         config.setButtonBackgroundResource(R.drawable.hot_keyword_bg_selector);
-        tagViewGroup.setData(config, Arrays.asList(keywords), new TagViewGroup.OnSelectedListener() {
+        tagViewGroup.setData(config, keywords, new TagViewGroup.OnSelectedListener() {
             @Override
-            public void onSelected(String name) {
-                Toast.makeText(getBaseContext(), name, Toast.LENGTH_SHORT).show();
+            public void onSelected(TagViewGroup.TagValue value) {
+                Toast.makeText(getBaseContext(), value.getName(), Toast.LENGTH_SHORT).show();
             }
         });
         GoodsSpecView goodsSpecView = (GoodsSpecView) findViewById(R.id.goods_spec);
