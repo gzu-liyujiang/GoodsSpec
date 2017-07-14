@@ -26,10 +26,10 @@ public class MainActivity extends AppCompatActivity {
         config.setButtonMargin(5, 5);
         config.setButtonTextColor(0xFF111111, 0xFFFF0000);
         config.setButtonBackgroundResource(R.drawable.hot_keyword_bg_selector);
-        tagViewGroup.setData(config, keywords, new TagViewGroup.OnSelectedListener() {
+        tagViewGroup.setData(config, keywords, new TagViewGroup.OnMultiSelectedListener() {
             @Override
-            public void onSelected(TagViewGroup.TagValue value) {
-                Toast.makeText(getBaseContext(), tagViewGroup.getSelectedItems().toString(), Toast.LENGTH_SHORT).show();
+            public void onSelected(List<TagViewGroup.TagValue> values) {
+                Toast.makeText(getBaseContext(), values.toString(), Toast.LENGTH_SHORT).show();
             }
         });
         GoodsSpecView goodsSpecView = (GoodsSpecView) findViewById(R.id.goods_spec);

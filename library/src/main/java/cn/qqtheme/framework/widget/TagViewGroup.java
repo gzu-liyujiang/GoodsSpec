@@ -183,16 +183,25 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
             buttonView.setChecked(true);
             buttonView.setTextColor(config.buttonSelectedTextColor);
             if (onSelectedListener != null) {
-                for (TagValue value : data) {
-                    if (value.getName().equals(buttonView.getText().toString())) {
-                        onSelectedListener.onSelected(value);
-                        break;
+                if (onSelectedListener instanceof OnMultiSelectedListener) {
+                    OnMultiSelectedListener onMultiSelectedListener = (OnMultiSelectedListener) onSelectedListener;
+                    onMultiSelectedListener.onSelected(getSelectedItems());
+                } else {
+                    for (TagValue value : data) {
+                        if (value.getName().equals(buttonView.getText().toString())) {
+                            onSelectedListener.onSelected(value);
+                            break;
+                        }
                     }
                 }
             }
         } else {
             buttonView.setChecked(false);
             buttonView.setTextColor(config.buttonTextColor);
+            if (onSelectedListener != null && onSelectedListener instanceof OnMultiSelectedListener) {
+                OnMultiSelectedListener onMultiSelectedListener = (OnMultiSelectedListener) onSelectedListener;
+                onMultiSelectedListener.onSelected(getSelectedItems());
+            }
         }
     }
 
@@ -374,6 +383,18 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
     public interface OnSelectedListener {
 
         void onSelected(TagValue value);
+
+    }
+
+    public static abstract class OnMultiSelectedListener implements OnSelectedListener {
+
+
+        public abstract void onSelected(List<TagValue> values);
+
+        @Deprecated
+        @Override
+        public void onSelected(TagValue value) {
+        }
 
     }
 
