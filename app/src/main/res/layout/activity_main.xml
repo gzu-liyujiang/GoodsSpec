@@ -7,6 +7,7 @@
     <cn.qqtheme.framework.widget.TagViewGroup
         android:id="@+id/hot_keyword"
         android:layout_width="match_parent"
+        android:layout_margin="10dp"
         android:layout_height="wrap_content" />
 
     <View

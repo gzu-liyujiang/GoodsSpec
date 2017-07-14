@@ -20,16 +20,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        TagViewGroup tagViewGroup = (TagViewGroup) findViewById(R.id.hot_keyword);
+        final TagViewGroup tagViewGroup = (TagViewGroup) findViewById(R.id.hot_keyword);
         TagViewGroup.UiConfig config = new TagViewGroup.UiConfig();
         config.setMultipleMode(true);
-        config.setContainerPadding(0);
-        config.setButtonTextColor(0xFF111111, 0xFF111111);
+        config.setButtonMargin(5, 5);
+        config.setButtonTextColor(0xFF111111, 0xFFFF0000);
         config.setButtonBackgroundResource(R.drawable.hot_keyword_bg_selector);
         tagViewGroup.setData(config, keywords, new TagViewGroup.OnSelectedListener() {
             @Override
             public void onSelected(TagViewGroup.TagValue value) {
-                Toast.makeText(getBaseContext(), value.getName(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), tagViewGroup.getSelectedItems().toString(), Toast.LENGTH_SHORT).show();
             }
         });
         GoodsSpecView goodsSpecView = (GoodsSpecView) findViewById(R.id.goods_spec);
