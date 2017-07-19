@@ -321,6 +321,7 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
     }
 
     public void setData(String[] data) {
+        this.data.clear();
         for (String d : data) {
             this.data.add(new StringTag(d));
         }
@@ -336,6 +337,7 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
     }
 
     public void setData(UiConfig config, String[] data, OnSelectedListener listener) {
+        this.data.clear();
         for (String d : data) {
             this.data.add(new StringTag(d));
         }
