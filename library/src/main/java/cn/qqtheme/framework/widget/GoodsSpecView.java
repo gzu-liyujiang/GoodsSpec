@@ -1,4 +1,4 @@
-package cn.qqtheme.framework.widget;
+﻿package cn.qqtheme.framework.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -80,9 +80,16 @@ public class GoodsSpecView extends LinearLayout {
             textView.setText(specName.getName());
             params.setMargins(margin, margin, margin, margin);
             textView.setLayoutParams(params);
+            textView.setTextColor(0xFF333333);
+            TextPaint tp = textView.getPaint();
+            tp.setFakeBoldText(true);
+            textView.setTextSize(13);
             addView(textView);
             //设置一个规格分类下的所有小规格
             TagViewGroup tagViewGroup = new TagViewGroup(context);
+            LayoutParams params2 = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            tagViewGroup.setLayoutParams(params2);
             final List<? extends ISpecValue> values = specName.getValues();
             List<String> valueStrs = new ArrayList<>();
             for (ISpecValue value : values) {
@@ -96,7 +103,7 @@ public class GoodsSpecView extends LinearLayout {
                     }
                     for (ISpecValue value : values) {
                         if (value.getName().equals(tagValue.getName())) {
-                            onSelectedListener.onSelected(specName, tagValue.getName());
+                            onSelectedListener.onSelected(specName, value);
                             break;
                         }
                     }
@@ -117,6 +124,21 @@ public class GoodsSpecView extends LinearLayout {
         this.data = data;
         this.onSelectedListener = listener;
         refreshView();
+    }
+
+    public void doOnlyCheckedOne(String[] items) {
+        for (int i = 0, count = getChildCount(); i < count; i++) {
+            View view = getChildAt(i);
+            if (view instanceof TagViewGroup) {
+                TagViewGroup tagViewGroup = (TagViewGroup) view;
+                for (String item : items) {
+                    if (tagViewGroup.doOnlyCheckedOne(item)) {
+                        break;
+                    }
+                }
+            }
+        }
+
     }
 
     public static class UiConfig extends TagViewGroup.UiConfig {

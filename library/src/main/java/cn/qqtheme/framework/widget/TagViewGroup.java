@@ -1,4 +1,4 @@
-package cn.qqtheme.framework.widget;
+﻿package cn.qqtheme.framework.widget;
 
 import android.content.Context;
 import android.support.annotation.ColorInt;
@@ -34,8 +34,6 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
     private UiConfig config = new UiConfig();
     //存储所有的View，按行记录
     private List<List<View>> allChildViews = new ArrayList<>();
-    //记录每一行的最大高度
-    private List<Integer> lineHeights = new ArrayList<>();
     //存储每一行的所有View
     private List<View> lineViews = new ArrayList<>();
     //选择成功回调
@@ -59,8 +57,8 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
         int sizeHeight = MeasureSpec.getSize(heightMeasureSpec);
         int modeWidth = MeasureSpec.getMode(widthMeasureSpec);
         int modeHeight = MeasureSpec.getMode(heightMeasureSpec);
-        int width = 0;//自己测量的 宽度
-        int height = 0;//自己测量的高度
+        int realWidth = 0;//自己测量的真实宽度
+        int realHeight = 0;//自己测量的真实高度
         //记录每一行的宽度和高度
         int lineWidth = 0;
         int lineHeight = 0;
@@ -75,41 +73,33 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
             int childWidth = child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin;
             //子View占据的高度
             int childHeight = child.getMeasuredHeight() + lp.topMargin + lp.bottomMargin;
-            Log.d(null, "onMeasure: 第" + i + "个子View: lineWidth=" + lineWidth + ",childWidth=" + childWidth);
+            //LogUtils.d("onMeasure: 第" + i + "个子View: lineWidth=" + lineWidth + ",childWidth=" + childWidth);
             if (lineWidth + childWidth > sizeWidth) {//换行时候
-                //对比得到最大的宽度
-                width = Math.max(childWidth, lineWidth);
-                //记录行高
-                height += lineHeight;
-                //重置行宽高
-                lineWidth = childWidth;
+                //重置行的宽高
+                lineWidth = 0;
                 lineHeight = childHeight;
-            } else {//不换行情况
-                //叠加行宽
-                lineWidth += childWidth;
-                //得到最大行高
-                lineHeight = Math.max(lineHeight, childHeight);
+                //叠加高
+                realHeight += lineHeight;
             }
-            //处理最后一个子View的情况
-            if (i == childCount - 1) {
-                width = Math.max(width, lineWidth);
-                height += lineHeight;
-            }
+            lineWidth += Math.max(lineWidth, childWidth);
+            lineHeight = Math.max(lineHeight, childHeight);
+            //对比得到真实宽高
+            realWidth = Math.max(realWidth, lineWidth);
+            realHeight = Math.max(realHeight, lineHeight);
         }
-        Log.d(null, "onMeasure: sizeWidth=" + sizeWidth + ",width=" + width + ",height=" + height
-                + ",lineWidth=" + lineWidth + ",lineHeight=" + lineHeight);
+        //LogUtils.d("onMeasure: sizeWidth=" + sizeWidth + ",realWidth=" + realWidth + ",realHeight=" + realHeight
+        //       + ",lineWidth=" + lineWidth + ",lineHeight=" + lineHeight);
         setMeasuredDimension((modeWidth == MeasureSpec.EXACTLY) ? sizeWidth
-                : width, (modeHeight == MeasureSpec.EXACTLY) ? sizeHeight : height);
+                : realWidth, (modeHeight == MeasureSpec.EXACTLY) ? sizeHeight : realHeight);
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         allChildViews.clear();
         lineViews.clear();
-        lineHeights.clear();
         //获取当前ViewGroup的宽度
-        int width = getWidth();
-        Log.d(null, "onLayout: width=" + width);
+        int width = getMeasuredWidth();
+        //LogUtils.d("onLayout: width=" + width);
 
         int lineWidth = 0;
         int lineHeight = 0;
@@ -117,53 +107,54 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
         int childCount = getChildCount();
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
-            MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
-            int childWidth = child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin;
-            int childHeight = child.getMeasuredHeight() + lp.topMargin + lp.bottomMargin;
+            MarginLayoutParams childlp = (MarginLayoutParams) child.getLayoutParams();
+            int childWidth = child.getMeasuredWidth() + childlp.leftMargin + childlp.rightMargin;
+            int childHeight = child.getMeasuredHeight() + childlp.topMargin + childlp.bottomMargin;
             //如果需要换行
-            if (lineWidth + childWidth > width - getPaddingLeft() - getPaddingRight()) {
-                //记录LineHeight
-                lineHeights.add(lineHeight);
-                //记录当前行的Views
-                allChildViews.add(lineViews);
+            if (lineWidth + childWidth > width) {
                 //重置行的宽高
                 lineWidth = 0;
                 lineHeight = childHeight;
+                //记录当前行的Views
+                allChildViews.add(lineViews);
                 //重置view的集合
                 lineViews = new ArrayList<>();
             }
-            lineWidth += childWidth;
+            lineWidth += Math.max(lineWidth, childWidth);
             lineHeight = Math.max(lineHeight, childHeight);
             lineViews.add(child);
         }
-        //处理最后一行
-        lineHeights.add(lineHeight);
         allChildViews.add(lineViews);
+        //LogUtils.d("onLayout: 行高" + lineHeight);
+
         //设置子View的位置
         int left = 0;
         int top = 0;
         //获取行数
         int lineCount = allChildViews.size();
-        Log.d(null, "onLayout: 共" + lineCount + "行");
+        //LogUtils.d("onLayout: 共" + lineCount + "行");
         for (int i = 0; i < lineCount; i++) {
             //当前行的views和高度
             lineViews = allChildViews.get(i);
-            lineHeight = lineHeights.get(i);
+            //LogUtils.d("onLayout: 第" + i + "行共" + lineViews.size() + "个子视图");
             for (int j = 0; j < lineViews.size(); j++) {
                 View child = lineViews.get(j);
                 //判断是否显示
                 if (child.getVisibility() == View.GONE) {
                     continue;
                 }
-                MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
-                int cLeft = left + lp.leftMargin + getPaddingLeft();
-                int cTop = top + lp.topMargin + getPaddingTop();
+                MarginLayoutParams childlp = (MarginLayoutParams) child.getLayoutParams();
+                int cLeft = left + childlp.leftMargin + getPaddingLeft();
+                int cTop = top + childlp.topMargin;
                 int cRight = cLeft + child.getMeasuredWidth();
                 int cBottom = cTop + child.getMeasuredHeight();
                 //进行子View进行布局
                 child.layout(cLeft, cTop, cRight, cBottom);
-                left += child.getMeasuredWidth() + lp.leftMargin + lp.rightMargin;
+                //LogUtils.d("onLayout: 已布局第" + i + "行的第" + j + "个子视图，位置为："
+                //        + cLeft + "," + cTop + "," + cRight + "," + cBottom);
+                left += child.getMeasuredWidth() + childlp.leftMargin + childlp.rightMargin;
             }
+            //布局下一行，重设左边及顶部位置
             left = 0;
             top += lineHeight;
         }
@@ -213,17 +204,20 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
         }
     }
 
-    public void doOnlyCheckedOne(String item) {
+    public boolean doOnlyCheckedOne(String item) {
+        boolean hasCheckedOne = false;
         for (int i = 0; i < getChildCount(); i++) {
             CompoundButton button = (CompoundButton) getChildAt(i);
             if (button.getText().toString().equals(item)) {
                 button.setChecked(true);
                 button.setTextColor(config.buttonSelectedTextColor);
+                hasCheckedOne = true;
             } else {
                 button.setChecked(false);
                 button.setTextColor(config.buttonTextColor);
             }
         }
+        return hasCheckedOne;
     }
 
     public void doNotCheckedOne(String item) {
@@ -260,9 +254,10 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
         if (data == null || data.size() == 0) {
             return;
         }
-        Log.d(null, "tags=" + Arrays.deepToString(data.toArray()));
+        //LogUtils.d("tags=" + Arrays.deepToString(data.toArray()));
         Context context = getContext();
-        setPadding(dip2px(context, config.containerPadding), 0, dip2px(context, config.containerPadding), 0);
+        int conPadding = dip2px(context, config.containerPadding);
+        setPadding(conPadding, conPadding, conPadding, conPadding);
         for (int i = 0; i < data.size(); i++) {
             CompoundButton button;
             if (config.isMultipleMode) {
@@ -273,13 +268,14 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
             button.setOnCheckedChangeListener(this);
             //设置按钮的参数
             LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                    dip2px(context, config.buttonHeight));
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
             //设置文字的边距
-            int padding = dip2px(context, config.textPadding);
-            button.setPadding(padding, 0, padding, 0);
+            int leftRightPadding = dip2px(context, config.textLeftRightPadding);
+            int topBottomPadding = dip2px(context, config.textTopBottomPadding);
+            button.setPadding(leftRightPadding, topBottomPadding, leftRightPadding, topBottomPadding);
             //设置margin属性，需传入LayoutParams否则会丢失原有的布局参数
             MarginLayoutParams marginParams = new MarginLayoutParams(buttonParams);
-            marginParams.leftMargin = dip2px(context, config.buttonLeftMargin);
+            marginParams.leftMargin = (config.ignoreFirstLeftMargin && i == 0) ? 0 : dip2px(context, config.buttonLeftMargin);
             marginParams.topMargin = dip2px(context, config.buttonTopMargin);
             button.setLayoutParams(marginParams);
             button.setGravity(Gravity.CENTER);
@@ -408,15 +404,16 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
         /**
          * 文字与按钮的边距
          */
-        private int textPadding = 10;
+        private int textLeftRightPadding = 10;
+        private int textTopBottomPadding = 5;
         /**
          * 整个商品属性的左右间距
          */
-        private int containerPadding = 15;
+        private int containerPadding = 0;
         /**
-         * 属性按钮的高度
+         * 忽略第一个按钮的左边距
          */
-        private int buttonHeight = 25;
+        private boolean ignoreFirstLeftMargin = false;
         /**
          * 属性按钮之间的左边距
          */
@@ -432,11 +429,11 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
         /**
          * 属性按钮文字颜色
          */
-        private int buttonTextColor = 0xFF111111;
+        private int buttonTextColor = Color.parseColor("#666666");
         /**
          * 选择的属性按钮文字颜色
          */
-        private int buttonSelectedTextColor = 0xFFFF5555;
+        private int buttonSelectedTextColor = 0xFFFFFFFF;
         /**
          * 属性按钮文字大小
          */
@@ -447,15 +444,21 @@ public class TagViewGroup extends ViewGroup implements CompoundButton.OnCheckedC
         }
 
         public void setTextPadding(int textPadding) {
-            this.textPadding = textPadding;
+            this.textLeftRightPadding = textPadding;
+            this.textTopBottomPadding = textPadding;
+        }
+
+        public void setTextPadding(int textLeftRightPadding, int textTopBottomPadding) {
+            this.textLeftRightPadding = textLeftRightPadding;
+            this.textTopBottomPadding = textTopBottomPadding;
         }
 
         public void setContainerPadding(int containerPadding) {
             this.containerPadding = containerPadding;
         }
 
-        public void setButtonHeight(int buttonHeight) {
-            this.buttonHeight = buttonHeight;
+        public void setIgnoreFirstLeftMargin(boolean ignoreFirstLeftMargin) {
+            this.ignoreFirstLeftMargin = ignoreFirstLeftMargin;
         }
 
         public void setButtonMargin(int buttonLeftMargin, int buttonTopMargin) {
